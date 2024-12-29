@@ -4,7 +4,6 @@ import javax.swing.JOptionPane;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        int [][] sudoku = new int[9][9];
         String nome = JOptionPane.showInputDialog("Digite seu nome: ");
         JOptionPane.showMessageDialog(null,"Bem-vindo, " + nome + "!");
 
@@ -14,7 +13,7 @@ public class Main {
             break;
             case "2": JOptionPane.showMessageDialog(null,"Definindo seu próprio jogo! (digitar no console)");
             break;
-            default: System.out.println("Opção inválida!");
+            default: JOptionPane.showMessageDialog(null,"Opção inválida!");
             break;
         }
 
