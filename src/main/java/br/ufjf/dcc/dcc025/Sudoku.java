@@ -77,83 +77,8 @@ public class Sudoku {
         }
     }
 
-    private List<Integer> getPossibleValues(int row, int col) {
-        if (table[row][col] != 0) {
-            // Se a posição já está preenchida, nenhum valor é válido
-            return Collections.emptyList();
-        }
-
-        boolean[] used = new boolean[9]; // Índices 0 a 8 representam os números 1 a 9
-
-        // Verificar linha
-        for (int j = 0; j < 9; j++) {
-            if (table[row][j] != 0) {
-                used[table[row][j] - 1] = true;
-            }
-        }
-
-        // Verificar coluna
-        for (int i = 0; i < 9; i++) {
-            if (table[i][col] != 0) {
-                used[table[i][col] - 1] = true;
-            }
-        }
-
-        // Verificar subgrade 3x3
-        int startRow = (row / 3) * 3;
-        int startCol = (col / 3) * 3;
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                int value = table[startRow + i][startCol + j];
-                if (value != 0) {
-                    used[value - 1] = true;
-                }
-            }
-        }
-
-        // Compilar lista de números possíveis
-        List<Integer> possibleValues = new ArrayList<>();
-        for (int num = 0; num < 9; num++) {
-            if (!used[num]) {
-                possibleValues.add(num + 1);
-            }
-        }
-
-        return possibleValues;
-    }
-
     private void randomAssignValues(int counter) {
-        List<int[]> positions = new ArrayList<>();
-
-        // Preenche a lista com todas as posições possíveis
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                positions.add(new int[]{row, col});
-            }
-        }
-
-        // Embaralha as posições
-        Collections.shuffle(positions);
-
-        int i = 0;
-        for (int[] position : positions) {
-            if (i >= counter) break;
-
-            int row = position[0];
-            int col = position[1];
-
-            // Obter valores possíveis para a posição
-            List<Integer> possibleValues = getPossibleValues(row, col);
-            if (!possibleValues.isEmpty()) {
-                // Selecionar aleatoriamente um valor possível
-                int randomValue = possibleValues.get((int) (Math.random() * possibleValues.size()));
-                this.table[row][col] = randomValue;
-
-                i++;
-            }
-        }
-
-        printTable();
+        System.out.println("Em processo de remake!");
     }
 
     private void assignValues(int[][] group) {
@@ -194,12 +119,12 @@ public class Sudoku {
             break;
         }
 
-        // Valida o jogo após cada jogada
+        /* Valida o jogo após cada jogada
         if (!table.validateGame()) {
             System.out.println("ATENÇÃO: A tabela possui erros.");
         } else {
             System.out.println("A tabela está válida.");
-        }
+        }*/
     }
 
     private void printTable() {
