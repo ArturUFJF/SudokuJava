@@ -7,7 +7,6 @@ public class Main {
         //Criação do tabuleiro
         Sudoku table = new Sudoku();
 
-        try{
         String option = JOptionPane.showInputDialog("Forma de começar o jogo: \n (1) Gerar um jogo aleatório \n (2) Definir o próprio jogo");
         switch (option) {
             case "1": {
@@ -36,9 +35,6 @@ public class Main {
 
             default: JOptionPane.showMessageDialog(null,"Opção inválida, escolha 1 ou 2!");
             break;
-        }
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(null, "Erro inesperado: " + e.getMessage());
         }
 
         while (!table.isEndgame()){

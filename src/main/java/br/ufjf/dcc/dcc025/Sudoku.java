@@ -14,7 +14,8 @@ public class Sudoku {
         input = input.replaceAll("[^0-9,()]", ""); // Remove caracteres que não sejam números, vírgulas ou parênteses
 
         if (!input.startsWith("(") || !input.endsWith(")")) {
-            throw new IllegalArgumentException("O formato do input está incorreto. Certifique-se de que o input esteja no formato: (linha,coluna,valor)(linha,coluna,valor)...");
+            System.out.println("Formato do input está incorreto. Certifique-se de que o input esteja no formato: (linha,coluna,valor)(linha,coluna,valor)... Ignorando entrada.");
+            return new int[0][0];
         }
 
         // Remove os parênteses externos
