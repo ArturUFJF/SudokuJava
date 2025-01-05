@@ -38,7 +38,7 @@ public class Main {
         }
 
         while (!table.isEndgame()){
-            System.out.println("Escolha adicionar (escreva \"add\") ou remover (escreva \"remove\") uma jogada:");
+            System.out.println("Escolha: \nadd) Adicionar uma jogada \nremove) Remover uma jogada \nhint) Saber valores possíveis em uma posição");
             Scanner ingameScanner = new Scanner(System.in);
             String choice = ingameScanner.nextLine();
 
@@ -52,6 +52,12 @@ public class Main {
                 System.out.println("Insira a posição de remoção no formato (linha,coluna):");
                 String ingameInput = ingameScanner.nextLine();
                 Sudoku.play(ingameInput,table,"remove");
+            }
+
+            if (choice.equals("hint")) {
+                System.out.println("Insira a posição em que quer receber a dica no formato (linha,coluna):");
+                String ingameInput = ingameScanner.nextLine();
+                Sudoku.play(ingameInput,table,"hint");
             }
         }
 

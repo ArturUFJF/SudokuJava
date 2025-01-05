@@ -65,8 +65,8 @@ public class Sudoku {
         return validTuplas.toArray(new int[0][0]);
     }
 
-
-    public static void gameMake(String input, Sudoku table, int option) { //Inicia o jogo de acordo com os inputs
+    //Inicializa o jogo de acordo com os inputs
+    public static void gameMake(String input, Sudoku table, int option) {
         if (option == 1) {
             int counter = Integer.parseInt(input);
             table.randomAssignValues(counter);
@@ -148,7 +148,7 @@ public class Sudoku {
         }
     }
 
-
+    // Atribui valores aleatórios iniciais ao tabuleiro, com auxílio de outras funções
     private void randomAssignValues(int filledPositions) {
         generateSudokuSolution();
         removeValues(filledPositions);
@@ -156,6 +156,7 @@ public class Sudoku {
         printTable();
     }
 
+    //Permite a atribuição de valores iniciais para o tabuleiro pelo próprio usuário
     private void assignValues(int[][] group) {
         for (int[] info : group) {
             if (info.length == 3) {
@@ -190,16 +191,14 @@ public class Sudoku {
                 break;
             }
 
+            case "hint": {
+                int [][] position = parseInput(input, choice);
+                table.giveHint(position);
+            }
+
             default: System.out.println("Escolha inválida!");
             break;
         }
-
-        /* Valida o jogo após cada jogada
-        if (!table.validateGame()) {
-            System.out.println("ATENÇÃO: A tabela possui erros.");
-        } else {
-            System.out.println("A tabela está válida.");
-        }*/
     }
 
     private void printTable() {
@@ -218,6 +217,29 @@ public class Sudoku {
             if ((i + 1) % 3 == 0 && i != 8) {
                 System.out.println("---------------------");
             }
+        }
+    }
+
+    public void giveHint(int position[][]){
+        int line = position[0][0];
+        int column = position[0][1];
+
+        int previousValue = table[line][column];
+        ArrayList<Integer> possibleValues = new ArrayList<>();
+
+        for (int testValue=1; testValue<10; testValue++){
+            this.table[line][column] = testValue;
+
+            if(validateGame()){
+                possibleValues.add(testValue);
+            }
+        }
+
+        table[line][column] = previousValue;
+
+        System.out.print("Aqui, cabem os valores: ");
+        for (int values : possibleValues) {
+            System.out.print(values + " ");
         }
     }
 
