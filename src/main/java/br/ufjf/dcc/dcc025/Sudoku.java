@@ -3,7 +3,7 @@ import java.util.*;
 import java.lang.IllegalArgumentException;
 
 public class Sudoku {
-    private final int[][] table;
+    private int[][] table;
 
     public Sudoku() {
         this.table = new int[9][9];
@@ -77,61 +77,26 @@ public class Sudoku {
         }
     }
 
-    // Função para verificar se um número pode ser colocado na célula (linha, coluna)
-    public static boolean isSafe(int[][] board, int row, int col, int num) {
-        // Verifica a linha
+    //Função para gerar um tabuleiro resolvido padrão
+    public void fillSudokuBoard() {
+        int[][] solvedTable = {
+                {5, 3, 4, 6, 7, 8, 9, 1, 2},
+                {6, 7, 2, 1, 9, 5, 3, 4, 8},
+                {1, 9, 8, 3, 4, 2, 5, 6, 7},
+                {8, 5, 9, 7, 6, 1, 4, 2, 3},
+                {4, 2, 6, 8, 5, 3, 7, 9, 1},
+                {7, 1, 3, 9, 2, 4, 8, 5, 6},
+                {9, 6, 1, 5, 3, 7, 2, 8, 4},
+                {2, 8, 7, 4, 1, 9, 6, 3, 5},
+                {3, 4, 5, 2, 8, 6, 1, 7, 9}
+        };
+
         for (int i = 0; i < 9; i++) {
-            if (board[row][i] == num) {
-                return false;
-            }
+            System.arraycopy(solvedTable[i], 0, this.table[i], 0, 9);
         }
-
-        // Verifica a coluna
-        for (int i = 0; i < 9; i++) {
-            if (board[i][col] == num) {
-                return false;
-            }
-        }
-
-        // Verifica a subgrade 3x3
-        int startRow = 3 * (row / 3);
-        int startCol = 3 * (col / 3);
-        for (int i = startRow; i < startRow + 3; i++) {
-            for (int j = startCol; j < startCol + 3; j++) {
-                if (board[i][j] == num) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
-    // Algoritmo de backtracking para resolver o Sudoku
-    public static boolean solveSudoku(int[][] board) {
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                if (board[row][col] == 0) { // Encontra uma célula vazia
-                    for (int num = 1; num <= 9; num++) {
-                        if (isSafe(board, row, col, num)) {
-                            board[row][col] = num;
-                            if (solveSudoku(board)) {
-                                return true;
-                            }
-                            board[row][col] = 0; // Backtrack
-                        }
-                    }
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
 
-    // Função para gerar um tabuleiro resolvido
-    public void generateSudokuSolution() {
-        solveSudoku(this.table);
-    }
 
     // Função para remover valores aleatórios do tabuleiro
     public void removeValues(int filledPositions) {
@@ -148,11 +113,153 @@ public class Sudoku {
         }
     }
 
+    private void permuteNumbers() {
+        Random rand = new Random();
+        int num1 = rand.nextInt(9) + 1; // Número aleatório entre 1 e 9
+        int num2;
+        do {
+            num2 = rand.nextInt(9) + 1;
+        } while (num1 == num2); // Certifica-se de que os números são diferentes
+
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (table[i][j] == num1) {
+                    table[i][j] = num2;
+                } else if (table[i][j] == num2) {
+                    table[i][j] = num1;
+                }
+            }
+        }
+    }
+
+    private void permuteRowsInSubgrid() {
+        Random rand = new Random();
+        int subgrid = rand.nextInt(3); // Escolhe a subgrade (0, 1 ou 2)
+        int row1 = subgrid * 3 + rand.nextInt(3); // Linha na subgrade escolhida
+        int row2;
+        do {
+            row2 = subgrid * 3 + rand.nextInt(3);
+        } while (row1 == row2);
+
+        int[] temp = table[row1];
+        table[row1] = table[row2];
+        table[row2] = temp;
+    }
+
+    private void permuteColumnsInSubgrid() {
+        Random rand = new Random();
+        int subgrid = rand.nextInt(3); // Escolhe a subgrade (0, 1 ou 2)
+        int col1 = subgrid * 3 + rand.nextInt(3); // Coluna na subgrade escolhida
+        int col2;
+        do {
+            col2 = subgrid * 3 + rand.nextInt(3);
+        } while (col1 == col2);
+
+        for (int i = 0; i < 9; i++) {
+            int temp = table[i][col1];
+            table[i][col1] = table[i][col2];
+            table[i][col2] = temp;
+        }
+    }
+
+    private void permuteRowSubgrids() {
+        Random rand = new Random();
+        int subgrid1 = rand.nextInt(3); // Escolhe a primeira subgrade (0, 1 ou 2)
+        int subgrid2;
+        do {
+            subgrid2 = rand.nextInt(3);
+        } while (subgrid1 == subgrid2);
+
+        for (int i = 0; i < 3; i++) {
+            int[] temp = table[subgrid1 * 3 + i];
+            table[subgrid1 * 3 + i] = table[subgrid2 * 3 + i];
+            table[subgrid2 * 3 + i] = temp;
+        }
+    }
+
+    private void permuteColumnSubgrids() {
+        Random rand = new Random();
+        int subgrid1 = rand.nextInt(3); // Escolhe a primeira subgrade (0, 1 ou 2)
+        int subgrid2;
+        do {
+            subgrid2 = rand.nextInt(3);
+        } while (subgrid1 == subgrid2);
+
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 3; j++) {
+                int col1 = subgrid1 * 3 + j;
+                int col2 = subgrid2 * 3 + j;
+                int temp = table[i][col1];
+                table[i][col1] = table[i][col2];
+                table[i][col2] = temp;
+            }
+        }
+    }
+
+    private void rotateBoard() {
+        Random rand = new Random();
+        int rotations = rand.nextInt(4); // Número de rotações (0 a 3)
+
+        for (int r = 0; r < rotations; r++) {
+            int[][] rotated = new int[9][9];
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 9; j++) {
+                    rotated[j][8 - i] = this.table[i][j];
+                }
+            }
+            this.table = rotated;
+        }
+    }
+
+    private void reflectBoard() {
+        Random rand = new Random();
+        int reflectionType = rand.nextInt(4); // Escolhe o tipo de reflexão
+
+        if (reflectionType == 0) { // Refletir horizontalmente
+            for (int i = 0; i < 4; i++) {
+                int[] temp = table[i];
+                table[i] = table[8 - i];
+                table[8 - i] = temp;
+            }
+        } else if (reflectionType == 1) { // Refletir verticalmente
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 4; j++) {
+                    int temp = table[i][j];
+                    table[i][j] = table[i][8 - j];
+                    table[i][8 - j] = temp;
+                }
+            }
+        } else if (reflectionType == 2) { // Refletir diagonal principal
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < i; j++) {
+                    int temp = table[i][j];
+                    table[i][j] = table[j][i];
+                    table[j][i] = temp;
+                }
+            }
+        } else if (reflectionType == 3) { // Refletir diagonal secundária
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 9 - i; j++) {
+                    int temp = table[i][j];
+                    table[i][j] = table[8 - j][8 - i];
+                    table[8 - j][8 - i] = temp;
+                }
+            }
+        }
+    }
+
     // Atribui valores aleatórios iniciais ao tabuleiro, com auxílio de outras funções
     private void randomAssignValues(int filledPositions) {
-        generateSudokuSolution();
-        removeValues(filledPositions);
+        fillSudokuBoard();
+        permuteNumbers();
+        permuteRowsInSubgrid();
+        permuteColumnsInSubgrid();
+        permuteRowSubgrids();
+        permuteColumnSubgrids();
+        rotateBoard();
+        reflectBoard();
 
+        removeValues(filledPositions);
         printTable();
     }
 
@@ -173,7 +280,7 @@ public class Sudoku {
         printTable();
 
         // Valida o jogo após cada jogada
-        if (!validateGame()) {
+        if (!validateGame(true)) {
             System.out.println("ATENÇÃO: A tabela possui erros.");
         } else {
             System.out.println("A tabela está válida.");
@@ -194,6 +301,7 @@ public class Sudoku {
             case "hint": {
                 int [][] position = parseInput(input, choice);
                 table.giveHint(position);
+                break;
             }
 
             default: System.out.println("Escolha inválida!");
@@ -220,7 +328,7 @@ public class Sudoku {
         }
     }
 
-    public void giveHint(int position[][]){
+    public void giveHint(int[][] position){
         int line = position[0][0];
         int column = position[0][1];
 
@@ -230,7 +338,7 @@ public class Sudoku {
         for (int testValue=1; testValue<10; testValue++){
             this.table[line][column] = testValue;
 
-            if(validateGame()){
+            if(validateGame(false)){
                 possibleValues.add(testValue);
             }
         }
@@ -243,12 +351,12 @@ public class Sudoku {
         }
     }
 
-    public boolean validateGame() {
+    public boolean validateGame(boolean showReports) {
         // Verificar linhas
-        System.out.println("Relatório de erros:");
+        if (showReports) System.out.println("Relatório de erros:");
         for (int i = 0; i < 9; i++) {
             if (!validateGroup(table[i])) {
-                System.out.println("Erro na linha " + i);
+                if (showReports) System.out.println("Erro na linha " + i);
                 return false;
             }
         }
@@ -260,7 +368,7 @@ public class Sudoku {
                 column[i] = table[i][j];
             }
             if (!validateGroup(column)) {
-                System.out.println("Erro na coluna " + j);
+                if (showReports) System.out.println("Erro na coluna " + j);
                 return false;
             }
         }
@@ -269,7 +377,7 @@ public class Sudoku {
         for (int row = 0; row < 9; row += 3) {
             for (int col = 0; col < 9; col += 3) {
                 if (!validateGrid(row, col)) {
-                    System.out.println("Erro na subgrade começando em (" + row + "," + col + ")");
+                    if (showReports) System.out.println("Erro na subgrade começando em (" + row + "," + col + ")");
                     return false;
                 }
             }
@@ -320,7 +428,7 @@ public class Sudoku {
     }
 
     public boolean isEndgame(){
-        return isTableFull() && validateGame();
+        return isTableFull() && validateGame(true);
     }
 }
 
