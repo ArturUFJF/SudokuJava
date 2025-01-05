@@ -1,31 +1,69 @@
 package br.ufjf.dcc.dcc025;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
+import java.lang.IllegalArgumentException;
 
 public class Sudoku {
-    private int[][] table;
+    private final int[][] table;
 
     public Sudoku() {
         this.table = new int[9][9];
     }
 
-    private static int[][] parseInput(String input, Sudoku table){ //Formata as entradas para receber os valores corretamente
-        String[] tuplas = input.split("\\)\\("); //Dá split em cada )( pra separar os grupos;
+    private static int[][] parseInput(String input, String choice) {
+        // Remove caracteres indesejados e verifica o formato
+        input = input.replaceAll("[^0-9,()]", ""); // Remove caracteres que não sejam números, vírgulas ou parênteses
 
-        tuplas[0] = tuplas[0].substring(1); //Remove parêntese inicial
-        tuplas[(tuplas.length) - 1] = tuplas[tuplas.length - 1].substring(0, tuplas[tuplas.length - 1].length() - 1); //Remove parêntese final
+        if (!input.startsWith("(") || !input.endsWith(")")) {
+            throw new IllegalArgumentException("O formato do input está incorreto. Certifique-se de que o input esteja no formato: (linha,coluna,valor)(linha,coluna,valor)...");
+        }
 
-        int[][] group = new int[tuplas.length][3]; //Array de arrays com espaço para o número de strings presentes em "tuplas" e informações que serão extraídas de cada uma
-        for (int i=0; i<tuplas.length; i++) {
-            String[] stringNumbers = tuplas[i].split(",");
+        // Remove os parênteses externos
+        input = input.substring(1, input.length() - 1);
 
-            for (int j=0; j<3; j++) {
-                group[i][j] = Integer.parseInt(stringNumbers[j]); // Converter cada parte em um inteiro
+        // Divide as tuplas
+        String[] tuplas = input.split("\\)\\("); // Cada entrada é separada por `)(`
+
+        List<int[]> validTuplas = new ArrayList<>();
+
+        // Determina o número de elementos esperado por tupla com base na escolha
+        int expectedLength = "add".equalsIgnoreCase(choice) ? 3 : 2;
+
+        for (String tupla : tuplas) {
+            String[] stringNumbers = tupla.split(",");
+
+            if (stringNumbers.length != expectedLength) {
+                // Ignora entradas com número incorreto de elementos
+                System.out.println("Entrada com número incorreto de elementos: " + tupla);
+                continue;
+            }
+
+            try {
+                int[] group = new int[expectedLength];
+
+                for (int j = 0; j < stringNumbers.length; j++) {
+                    group[j] = Integer.parseInt(stringNumbers[j])-1;
+
+                    // Valida limites para linha e coluna (0 a 8)
+                    if (j < 2 && (group[j] < 0 || group[j] > 8)) {
+                        throw new IllegalArgumentException("Linha e coluna devem estar entre 1 e 9.");
+                    }
+
+                    // Valida o valor apenas para a opção "add" (1 a 9)
+                    if (j == 2 && "add".equalsIgnoreCase(choice) && (group[j] < 0 || group[j] > 8)) { //Entre 0 e 8 porque o valor foi decrescido
+                        throw new IllegalArgumentException("O valor deve estar entre 1 e 9.");
+                    }
+                }
+
+                validTuplas.add(group);
+            } catch (IllegalArgumentException e) {
+                // Ignora entradas inválidas e exibe mensagem de erro
+                System.out.println("Entrada inválida: " + tupla + " - " + e.getMessage());
             }
         }
-        return group;
+
+        return validTuplas.toArray(new int[0][0]);
     }
+
 
     public static void gameMake(String input, Sudoku table, int option) { //Inicia o jogo de acordo com os inputs
         if (option == 1) {
@@ -34,25 +72,82 @@ public class Sudoku {
         }
 
         if (option == 2){
-            table.assignValues(parseInput(input, table));
+            table.assignValues(parseInput(input,"add"));
         }
     }
 
-    private void randomAssignValues(int counter) { //Atribui valores aleatórios a posições não repetidas
-        Set<String> usedPositions = new HashSet<>(); //Hash de posições já utilizadas
+    private List<Integer> getPossibleValues(int row, int col) {
+        if (table[row][col] != 0) {
+            // Se a posição já está preenchida, nenhum valor é válido
+            return Collections.emptyList();
+        }
+
+        boolean[] used = new boolean[9]; // Índices 0 a 8 representam os números 1 a 9
+
+        // Verificar linha
+        for (int j = 0; j < 9; j++) {
+            if (table[row][j] != 0) {
+                used[table[row][j] - 1] = true;
+            }
+        }
+
+        // Verificar coluna
+        for (int i = 0; i < 9; i++) {
+            if (table[i][col] != 0) {
+                used[table[i][col] - 1] = true;
+            }
+        }
+
+        // Verificar subgrade 3x3
+        int startRow = (row / 3) * 3;
+        int startCol = (col / 3) * 3;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                int value = table[startRow + i][startCol + j];
+                if (value != 0) {
+                    used[value - 1] = true;
+                }
+            }
+        }
+
+        // Compilar lista de números possíveis
+        List<Integer> possibleValues = new ArrayList<>();
+        for (int num = 0; num < 9; num++) {
+            if (!used[num]) {
+                possibleValues.add(num + 1);
+            }
+        }
+
+        return possibleValues;
+    }
+
+    private void randomAssignValues(int counter) {
+        List<int[]> positions = new ArrayList<>();
+
+        // Preenche a lista com todas as posições possíveis
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                positions.add(new int[]{row, col});
+            }
+        }
+
+        // Embaralha as posições
+        Collections.shuffle(positions);
 
         int i = 0;
-        while (i < counter) {
-            int randomLine = (int) (Math.random() * 9); //0 a 8
-            int randomColumn = (int) (Math.random() * 9); //0 a 8
+        for (int[] position : positions) {
+            if (i >= counter) break;
 
-            String position = randomLine + "," + randomColumn;
+            int row = position[0];
+            int col = position[1];
 
-            if (!usedPositions.contains(position)) {
-                int randomValue = (int) (Math.random() * 9) + 1; //(0 a 8)+1 = 1 a 9
+            // Obter valores possíveis para a posição
+            List<Integer> possibleValues = getPossibleValues(row, col);
+            if (!possibleValues.isEmpty()) {
+                // Selecionar aleatoriamente um valor possível
+                int randomValue = possibleValues.get((int) (Math.random() * possibleValues.size()));
+                this.table[row][col] = randomValue;
 
-                this.table[randomLine][randomColumn] = randomValue;
-                usedPositions.add(position);
                 i++;
             }
         }
@@ -60,12 +155,51 @@ public class Sudoku {
         printTable();
     }
 
-    private void assignValues(int[][] group) { //Atribui os valores às posições inseridas
-        for (int[] info : group){
-            this.table[info[0]][info[1]] = info[2];
+    private void assignValues(int[][] group) {
+        for (int[] info : group) {
+            if (info.length == 3) {
+                // Caso de atribuir um valor específico (linha, coluna, valor)
+                this.table[info[0]][info[1]] = info[2]+1; //+1 porque 1 é decrescido nas posições (inserção de 1 a 9, posições de 0 a 8)
+            } else if (info.length == 2) {
+                // Caso de remover o valor (linha, coluna)
+                this.table[info[0]][info[1]] = 0;
+            } else {
+                // Caso de entrada inválida
+                System.out.println("Entrada inválida: " + Arrays.toString(info));
+            }
         }
         printTable();
+
+        // Valida o jogo após cada jogada
+        if (!validateGame()) {
+            System.out.println("ATENÇÃO: A tabela possui erros.");
+        } else {
+            System.out.println("A tabela está válida.");
         }
+    }
+
+    public static void play(String input, Sudoku table, String choice){
+        switch (choice){
+            case "add": gameMake(input, table, 2);
+            break;
+
+            case "remove": {
+                int[][] removePositions = parseInput(input, choice);
+                table.assignValues(removePositions);
+                break;
+            }
+
+            default: System.out.println("Escolha inválida!");
+            break;
+        }
+
+        // Valida o jogo após cada jogada
+        if (!table.validateGame()) {
+            System.out.println("ATENÇÃO: A tabela possui erros.");
+        } else {
+            System.out.println("A tabela está válida.");
+        }
+    }
 
     private void printTable() {
         for (int i = 0; i < 9; i++) {
@@ -86,6 +220,71 @@ public class Sudoku {
         }
     }
 
+    public boolean validateGame() {
+        // Verificar linhas
+        System.out.println("Relatório de erros:");
+        for (int i = 0; i < 9; i++) {
+            if (!validateGroup(table[i])) {
+                System.out.println("Erro na linha " + i);
+                return false;
+            }
+        }
+
+        // Verificar colunas
+        for (int j = 0; j < 9; j++) {
+            int[] column = new int[9];
+            for (int i = 0; i < 9; i++) {
+                column[i] = table[i][j];
+            }
+            if (!validateGroup(column)) {
+                System.out.println("Erro na coluna " + j);
+                return false;
+            }
+        }
+
+        // Verificar subgrades 3x3
+        for (int row = 0; row < 9; row += 3) {
+            for (int col = 0; col < 9; col += 3) {
+                if (!validateGrid(row, col)) {
+                    System.out.println("Erro na subgrade começando em (" + row + "," + col + ")");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private boolean validateGroup(int[] group) {
+        boolean[] seen = new boolean[9];
+        for (int value : group) {
+            if (value != 0) { // Ignorar células vazias
+                if (seen[value - 1]) {
+                    return false; // Valor duplicado
+                }
+                seen[value - 1] = true;
+            }
+        }
+        return true;
+    }
+
+    private boolean validateGrid(int startRow, int startCol) {
+        boolean[] seen = new boolean[9];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                int value = table[startRow + i][startCol + j];
+                if (value != 0) { // Ignorar células vazias
+                    if (seen[value - 1]) {
+                        return false; // Valor duplicado
+                    }
+                    seen[value - 1] = true;
+                }
+            }
+        }
+        return true;
+    }
+
+
     public boolean isTableFull() {
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
@@ -95,6 +294,10 @@ public class Sudoku {
             }
         }
         return true; // Tabela cheia
+    }
+
+    public boolean isEndgame(){
+        return isTableFull() && validateGame();
     }
 }
 
