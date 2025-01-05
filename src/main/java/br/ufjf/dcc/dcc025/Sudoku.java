@@ -77,8 +77,83 @@ public class Sudoku {
         }
     }
 
-    private void randomAssignValues(int counter) {
-        System.out.println("Em processo de remake!");
+    // Função para verificar se um número pode ser colocado na célula (linha, coluna)
+    public static boolean isSafe(int[][] board, int row, int col, int num) {
+        // Verifica a linha
+        for (int i = 0; i < 9; i++) {
+            if (board[row][i] == num) {
+                return false;
+            }
+        }
+
+        // Verifica a coluna
+        for (int i = 0; i < 9; i++) {
+            if (board[i][col] == num) {
+                return false;
+            }
+        }
+
+        // Verifica a subgrade 3x3
+        int startRow = 3 * (row / 3);
+        int startCol = 3 * (col / 3);
+        for (int i = startRow; i < startRow + 3; i++) {
+            for (int j = startCol; j < startCol + 3; j++) {
+                if (board[i][j] == num) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // Algoritmo de backtracking para resolver o Sudoku
+    public static boolean solveSudoku(int[][] board) {
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (board[row][col] == 0) { // Encontra uma célula vazia
+                    for (int num = 1; num <= 9; num++) {
+                        if (isSafe(board, row, col, num)) {
+                            board[row][col] = num;
+                            if (solveSudoku(board)) {
+                                return true;
+                            }
+                            board[row][col] = 0; // Backtrack
+                        }
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Função para gerar um tabuleiro resolvido
+    public void generateSudokuSolution() {
+        solveSudoku(this.table);
+    }
+
+    // Função para remover valores aleatórios do tabuleiro
+    public void removeValues(int filledPositions) {
+        Random rand = new Random();
+        int removedCount = 0;
+
+        while (removedCount < (81 - filledPositions)) {
+            int row = rand.nextInt(9);
+            int col = rand.nextInt(9);
+            if (this.table[row][col] != 0) {
+                this.table[row][col] = 0;
+                removedCount++;
+            }
+        }
+    }
+
+
+    private void randomAssignValues(int filledPositions) {
+        generateSudokuSolution();
+        removeValues(filledPositions);
+
+        printTable();
     }
 
     private void assignValues(int[][] group) {
