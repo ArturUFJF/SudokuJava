@@ -278,13 +278,6 @@ public class Sudoku {
             }
         }
         printTable();
-
-        // Valida o jogo após cada jogada
-        if (!validateGame(true)) {
-            System.out.println("ATENÇÃO: A tabela possui erros.");
-        } else {
-            System.out.println("A tabela está válida.");
-        }
     }
 
     public static void play(String input, Sudoku table, String choice){
@@ -428,7 +421,7 @@ public class Sudoku {
     }
 
     public boolean isEndgame(){
-        return isTableFull() && validateGame(true);
+        return isTableFull() && validateGame(false);
     }
 }
 

@@ -38,28 +38,46 @@ public class Main {
         }
 
         while (!table.isEndgame()){
-            System.out.println("Escolha: \nadd) Adicionar uma jogada \nremove) Remover uma jogada \nhint) Saber valores possíveis em uma posição");
+            System.out.println("\nEscolha: \n1) Adicionar jogada \n2) Remover jogada \n3) Verificar\n4) Dica \n5) Sair");
             Scanner ingameScanner = new Scanner(System.in);
             String choice = ingameScanner.nextLine();
 
-            if (choice.equals("add")) {
-                System.out.println("Insira sua(s) jogada(s) no formato (linha,coluna,valor):");
-                String ingameInput = ingameScanner.nextLine();
-                Sudoku.play(ingameInput, table, "add");
-            }
+            switch (choice) {
+                case "1": {
+                    System.out.println("Insira sua(s) jogada(s) no formato (linha,coluna,valor):");
+                    String ingameInput = ingameScanner.nextLine();
+                    Sudoku.play(ingameInput, table, "add");
+                    break;
+                }
 
-            if (choice.equals("remove")) {
-                System.out.println("Insira a posição de remoção no formato (linha,coluna):");
-                String ingameInput = ingameScanner.nextLine();
-                Sudoku.play(ingameInput,table,"remove");
-            }
+                case "2": {
+                    System.out.println("Insira a posição de remoção no formato (linha,coluna):");
+                    String ingameInput = ingameScanner.nextLine();
+                    Sudoku.play(ingameInput,table,"remove");
+                    break;
+                }
 
-            if (choice.equals("hint")) {
-                System.out.println("Insira a posição em que quer receber a dica no formato (linha,coluna):");
-                String ingameInput = ingameScanner.nextLine();
-                Sudoku.play(ingameInput,table,"hint");
+                case "3": {
+                    table.validateGame(true);
+                    break;
+                }
+
+                case "4": {
+                    System.out.println("Insira a posição em que quer receber a dica no formato (linha,coluna):");
+                    String ingameInput = ingameScanner.nextLine();
+                    Sudoku.play(ingameInput,table,"hint");
+                    break;
+                }
+
+                case "5": {
+                    System.out.println("Saindo do jogo...");
+                    System.exit(0);
+                }
+
+                default: break;
             }
         }
+
 
         System.out.println("\nSudoku finalizado com sucesso!");
         }
