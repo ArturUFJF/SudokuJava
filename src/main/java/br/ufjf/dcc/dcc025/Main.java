@@ -15,6 +15,7 @@ public class Main {
                 case "1": {
                     String stringCounter = JOptionPane.showInputDialog("Quantos números você deseja sortear?");
                     Sudoku.gameMake(stringCounter, table, 1);
+                    table.lockInitialPositions();
                     break;
                 }
 
@@ -27,6 +28,7 @@ public class Main {
                         String input = scanner.nextLine();
 
                         if (input.equals("(-1,-1,-1)")) {
+                            table.lockInitialPositions();
                             break;
                         }
 

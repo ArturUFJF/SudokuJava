@@ -4,9 +4,10 @@ import java.lang.IllegalArgumentException;
 
 public class Sudoku {
     private int[][] table;
-
+    boolean[][] lockedPositions;
     public Sudoku() {
         this.table = new int[9][9];
+        this.lockedPositions = new boolean[9][9];
     }
 
     private static int[][] parseInput(String input, String choice) {
@@ -267,20 +268,30 @@ public class Sudoku {
         printTable();
     }
 
-    //Permite a atribuição de valores iniciais para o tabuleiro pelo próprio usuário
+    //Permite a atribuição de valores a posições específicas do tabuleiro
     private void assignValues(int[][] group) {
         for (int[] info : group) {
-            if (info.length == 3) {
-                // Caso de atribuir um valor específico (linha, coluna, valor)
-                this.table[info[0]][info[1]] = info[2]+1; //+1 porque 1 é decrescido nas posições (inserção de 1 a 9, posições de 0 a 8)
-            } else if (info.length == 2) {
-                // Caso de remover o valor (linha, coluna)
-                this.table[info[0]][info[1]] = 0;
-            } else {
-                // Caso de entrada inválida
-                System.out.println("Entrada inválida: " + Arrays.toString(info));
+            // Verifica se não está adicionando em uma posição inválida
+            if (!lockedPositions[info[0]][info[1]]) {
+                if (info.length == 3) {
+                    // Caso de atribuir um valor específico (linha, coluna, valor)
+                    this.table[info[0]][info[1]] = info[2]+1; //+1 porque 1 é decrescido nas posições (inserção de 1 a 9, posições de 0 a 8)
+                }
+
+                else if (info.length == 2) {
+                    // Caso de remover o valor (linha, coluna)
+                    this.table[info[0]][info[1]] = 0;
+                }
+
+                else {
+                    // Caso de entrada inválida
+                    System.out.println("Entrada inválida: " + Arrays.toString(info));
+                }
             }
+            else {
+                System.out.println("Erro: impossível alterar valores iniciais do tabuleiro!");
         }
+                }
         printTable();
     }
 
@@ -432,5 +443,16 @@ public class Sudoku {
     public boolean isEndgame(){
         return isTableFull() && validateGame(false);
     }
+
+    public void lockInitialPositions(){
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (table[row][col] != 0) { // Se a posição não for zero, ela está bloqueada porque já recebeu um preset
+                    lockedPositions[row][col] = true;
+                }
+            }
+        }
+    }
+
 }
 
