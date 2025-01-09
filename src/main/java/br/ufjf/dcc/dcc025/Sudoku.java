@@ -237,7 +237,7 @@ public class Sudoku {
                     table[j][i] = temp;
                 }
             }
-        } else if (reflectionType == 3) { // Refletir diagonal secundária
+        } else { // Refletir diagonal secundária
             for (int i = 0; i < 9; i++) {
                 for (int j = 0; j < 9 - i; j++) {
                     int temp = table[i][j];
@@ -250,7 +250,10 @@ public class Sudoku {
 
     // Atribui valores aleatórios iniciais ao tabuleiro, com auxílio de outras funções
     private void randomAssignValues(int filledPositions) {
+        //Atribui valor fixo inicial
         fillSudokuBoard();
+
+        //Operações de embaralhamento
         permuteNumbers();
         permuteRowsInSubgrid();
         permuteColumnsInSubgrid();
@@ -259,6 +262,7 @@ public class Sudoku {
         rotateBoard();
         reflectBoard();
 
+        //Remove 81-filledPositions valores do tabuleiro completo
         removeValues(filledPositions);
         printTable();
     }
@@ -293,7 +297,7 @@ public class Sudoku {
 
             case "hint": {
                 int [][] position = parseInput(input, choice);
-                table.giveHint(position);
+                table.provideHint(position);
                 break;
             }
 
@@ -321,7 +325,12 @@ public class Sudoku {
         }
     }
 
-    public void giveHint(int[][] position){
+    public void provideHint(int[][] position){
+        if (position.length != 1 || position[0].length != 2) {
+            System.out.println("Erro: A posição deve conter exatamente duas coordenadas (linha e coluna).");
+            return; // Interrompe o método para evitar comportamentos inesperados
+        }
+
         int line = position[0][0];
         int column = position[0][1];
 
@@ -349,7 +358,7 @@ public class Sudoku {
         if (showReports) System.out.println("Relatório de erros:");
         for (int i = 0; i < 9; i++) {
             if (!validateGroup(table[i])) {
-                if (showReports) System.out.println("Erro na linha " + i);
+                if (showReports) System.out.println("Erro na linha " + i + 1);
                 return false;
             }
         }
@@ -361,7 +370,7 @@ public class Sudoku {
                 column[i] = table[i][j];
             }
             if (!validateGroup(column)) {
-                if (showReports) System.out.println("Erro na coluna " + j);
+                if (showReports) System.out.println("Erro na coluna " + j + 1);
                 return false;
             }
         }
@@ -370,7 +379,7 @@ public class Sudoku {
         for (int row = 0; row < 9; row += 3) {
             for (int col = 0; col < 9; col += 3) {
                 if (!validateGrid(row, col)) {
-                    if (showReports) System.out.println("Erro na subgrade começando em (" + row + "," + col + ")");
+                    if (showReports) System.out.println("Erro na subgrade começando em (" + row+1 + "," + col+1 + ")");
                     return false;
                 }
             }
