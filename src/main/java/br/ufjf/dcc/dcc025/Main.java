@@ -7,15 +7,16 @@ public class Main {
         //Permite rejogabilidade
         while (true) {
 
-            //Criação do tabuleiro
-            Sudoku table = new Sudoku();
+            //Criação do objeto Sudoku
+            SudokuGame sudokuGameObject = new SudokuGame();
+            int[][] board = sudokuGameObject.getBoard();
 
             String option = JOptionPane.showInputDialog("Forma de começar o jogo: \n (1) Gerar um jogo aleatório \n (2) Definir o próprio jogo");
             switch (option) {
                 case "1": {
                     String stringCounter = JOptionPane.showInputDialog("Quantos números você deseja sortear?");
-                    Sudoku.gameMake(stringCounter, table, 1);
-                    table.lockInitialPositions();
+                    SudokuGame.initializeGame(stringCounter, sudokuGameObject, 1);
+                    sudokuGameObject.lockPresetPositions();
                     break;
                 }
 
@@ -28,11 +29,11 @@ public class Main {
                         String input = scanner.nextLine();
 
                         if (input.equals("(-1,-1,-1)")) {
-                            table.lockInitialPositions();
+                            sudokuGameObject.lockPresetPositions();
                             break;
                         }
 
-                        Sudoku.gameMake(input, table, 2);
+                        SudokuGame.initializeGame(input, sudokuGameObject, 2);
                         //Input em string é convertido para um array de arrays de informação e o jogo é criado com os valores em cada posição
                     }
                     break;
@@ -43,7 +44,7 @@ public class Main {
                     break;
             }
 
-            while (!table.isEndgame()) {
+            while (!SudokuValidator.isEndgame(board)) {
                 System.out.println("\nEscolha: \n1) Adicionar jogada \n2) Remover jogada \n3) Verificar\n4) Dica \n5) Sair");
                 Scanner ingameScanner = new Scanner(System.in);
                 String choice = ingameScanner.nextLine();
@@ -52,26 +53,26 @@ public class Main {
                     case "1": {
                         System.out.println("Insira sua(s) jogada(s) no formato (linha,coluna,valor):");
                         String ingameInput = ingameScanner.nextLine();
-                        Sudoku.play(ingameInput, table, "add");
+                        SudokuGame.processPlayerAction(ingameInput, sudokuGameObject, "add");
                         break;
                     }
 
                     case "2": {
                         System.out.println("Insira a posição de remoção no formato (linha,coluna):");
                         String ingameInput = ingameScanner.nextLine();
-                        Sudoku.play(ingameInput, table, "remove");
+                        SudokuGame.processPlayerAction(ingameInput, sudokuGameObject, "remove");
                         break;
                     }
 
                     case "3": {
-                        table.validateGame(true);
+                        SudokuValidator.validateGame(true, board);
                         break;
                     }
 
                     case "4": {
                         System.out.println("Insira a posição em que quer receber a dica no formato (linha,coluna):");
                         String ingameInput = ingameScanner.nextLine();
-                        Sudoku.play(ingameInput, table, "hint");
+                        SudokuGame.processPlayerAction(ingameInput, sudokuGameObject, "hint");
                         break;
                     }
 
